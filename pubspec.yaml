@@ -16,6 +16,8 @@ dependencies:
   easy_stepper: 0.8.5+1
   archive: ^4.0.7
   win32: 5.14.0
+  http: ^1.2.0
+  shared_preferences: ^2.2.2
 
 dev_dependencies:
   flutter_test:
@@ -29,3 +31,13 @@ flutter:
     - assets/
     - assets/services/
     - shorebird.yaml
+    - assets/logo.png
+    - assets/facebook.png
+    - assets/google.png
+    - assets/apple.png
+
+  fonts:
+    - family: Poppins
+      fonts:
+        - asset: assets/fonts/Poppins-Regular.ttf
+

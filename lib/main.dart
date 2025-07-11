@@ -1,6 +1,7 @@
 import 'package:agriplant/pages/onboarding_page.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:agriplant/pages/login_page.dart';
 
 void main() {
   runApp(const MainApp());
@@ -9,16 +10,16 @@ void main() {
 class MainApp extends StatelessWidget {
   const MainApp({super.key});
 
-  @override
+@override
   Widget build(BuildContext context) {
     return MaterialApp(
+      title: 'Govimansala',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
-        useMaterial3: true,
-        textTheme: GoogleFonts.nunitoTextTheme(),
+        primarySwatch: Colors.green,
+        textTheme: GoogleFonts.poppinsTextTheme(),
       ),
-      home: const OnboardingPage(),
+      home: LoginScreen(),
     );
   }
 }
