@@ -8,7 +8,10 @@ class AuthService {
   static Future<bool> login(String email, String password) async {
     final response = await http.post(
       Uri.parse('$_baseUrl/login'),
-      headers: {'Content-Type': 'application/json'},
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Client-Source': 'mobile',
+        },
       body: jsonEncode({'email': email, 'password': password}),
     );
 
