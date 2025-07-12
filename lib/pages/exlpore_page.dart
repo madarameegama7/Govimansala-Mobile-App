@@ -1,5 +1,6 @@
-import 'package:agriplant/data/products.dart';
-import 'package:agriplant/widgets/product_card.dart';
+import 'package:agriplant/data/explore.dart';
+import 'package:agriplant/widgets/explore_card.dart';
+import 'package:agriplant/widgets/weather_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
 
@@ -12,6 +13,7 @@ class ExplorePage extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(16.0),
         children: [
+          // Search bar + filter button
           Padding(
             padding: const EdgeInsets.only(bottom: 15),
             child: Row(
@@ -30,7 +32,7 @@ class ExplorePage extends StatelessWidget {
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderSide: BorderSide(
-                          color: Colors.grey.shade300,
+                          color: Colors.green.shade600,
                         ),
                         borderRadius: const BorderRadius.all(
                           Radius.circular(99),
@@ -42,53 +44,23 @@ class ExplorePage extends StatelessWidget {
                 ),
                 Padding(
                   padding: const EdgeInsets.only(left: 12),
-                  child: IconButton.filled(onPressed: () {}, icon: const Icon(IconlyLight.filter)),
+                  child: IconButton.filled(
+                    onPressed: () {},
+                    icon: const Icon(
+                      IconlyLight.filter,
+                      color: Colors.green,
+                    ),
+                  ),
                 ),
               ],
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.only(bottom: 25),
-            child: SizedBox(
-              height: 170,
-              child: Card(
-                color: Colors.green.shade50,
-                elevation: 0.1,
-                shadowColor: Colors.green.shade50,
-                child: Padding(
-                  padding: const EdgeInsets.all(12),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Flexible(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Free consultation",
-                              style: Theme.of(context).textTheme.titleLarge!.copyWith(
-                                    color: Colors.green.shade700,
-                                  ),
-                            ),
-                            const Text("Get free support from our customer service"),
-                            FilledButton(
-                              onPressed: () {},
-                              child: const Text("Call now"),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Image.asset(
-                        'assets/contact_us.png',
-                        width: 140,
-                      )
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
+
+          const WeatherCard(),
+
+          const SizedBox(height: 25),
+
+          //Section title
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -102,8 +74,10 @@ class ExplorePage extends StatelessWidget {
               ),
             ],
           ),
+
+          // GridView of explore cards
           GridView.builder(
-            itemCount: products.length,
+            itemCount: explores.length,
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -113,7 +87,7 @@ class ExplorePage extends StatelessWidget {
               mainAxisSpacing: 16,
             ),
             itemBuilder: (context, index) {
-              return ProductCard(product: products[index]);
+              return ExploreCard(explore: explores[index]);
             },
           )
         ],
