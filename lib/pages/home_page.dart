@@ -35,7 +35,7 @@ class _HomePageState extends State<HomePage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              "Hi Wilson 👋🏾",
+              "Hi Sunil 👋🏾",
               style: Theme.of(context).textTheme.titleMedium,
             ),
             Text("Enjoy our services", style: Theme.of(context).textTheme.bodySmall)
