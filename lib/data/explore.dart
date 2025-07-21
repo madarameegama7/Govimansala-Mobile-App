@@ -8,7 +8,7 @@ List<Explore> explores = [
   ),
   const Explore(
     name: "Crop Cultivation",
-    image: "assets/homePage/agri_articles.jpg",
+    image: "assets/homePage/crop_cultivation.jpeg",
     description: "Information about how to grow crops, when to grow, how to control pest and diseases",
   ),
   const Explore(
