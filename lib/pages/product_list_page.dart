@@ -19,7 +19,7 @@ class ProductListPage extends StatelessWidget {
       appBar: AppBar(title: Text(serviceName)),
       body: FutureBuilder<List<Item>>(
         future:
-            ProductService.fetchProducts(category: serviceName.toLowerCase()),
+            ProductService.fetchProducts(category: serviceName),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
