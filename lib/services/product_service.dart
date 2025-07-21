@@ -16,7 +16,7 @@ class ProductService {
 print("Saved token after login: $savedToken");
 
 
-    final url = Uri.parse("http://localhost:8080/api/product");
+    final url = Uri.parse("http://localhost:8080/api/product/category/$category");
 
     final response = await http.get(
       url,

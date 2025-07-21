@@ -36,6 +36,7 @@ flutter:
     - assets/google.png
     - assets/apple.png
     - assets/homePage/
+    - assets/productImages/
 
   fonts:
     - family: Poppins
