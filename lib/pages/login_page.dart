@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:agriplant/pages/home_page.dart';
+import 'package:agriplant/services/auth_service.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -70,8 +74,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   decoration: InputDecoration(
                     labelText: 'Password',
                     suffixIcon: IconButton(
-                      icon: Icon(
-                          _obscurePassword ? Icons.visibility : Icons.visibility_off),
+                      icon: Icon(_obscurePassword
+                          ? Icons.visibility
+                          : Icons.visibility_off),
                       onPressed: () {
                         setState(() {
                           _obscurePassword = !_obscurePassword;
@@ -102,8 +107,26 @@ class _LoginScreenState extends State<LoginScreen> {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: () {
-                      // Handle login
+                    onPressed: () async {
+                      final email = _emailController.text.trim();
+                      final password = _passwordController.text.trim();
+
+                      print('Calling AuthService.login...');
+
+                      bool success = await AuthService.login(email, password);
+
+                      if (success) {
+                        print('Login successful, navigating to HomePage...');
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(builder: (context) => HomePage()),
+                        );
+                      } else {
+                        print('Login failed, showing snackbar...');
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Invalid email or password')),
+                        );
+                      }
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.green[700],
