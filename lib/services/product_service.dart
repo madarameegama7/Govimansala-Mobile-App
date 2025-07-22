@@ -12,10 +12,6 @@ class ProductService {
       throw Exception("User not authenticated. Token not found.");
     }
 
-    final savedToken = prefs.getString('token');
-print("Saved token after login: $savedToken");
-
-
     final url = Uri.parse("http://localhost:8080/api/product/category/$category");
 
     final response = await http.get(

@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import '../models/item.dart';
 import '../services/product_service.dart';
+import '../services/order_service.dart';
 
 class ProductListPage extends StatelessWidget {
   final String serviceName;
@@ -13,13 +14,25 @@ class ProductListPage extends StatelessWidget {
     return 'assets/productImages/$name.jpeg';
   }
 
+  void handleAddToCart(BuildContext context, int productId) async {
+    try {
+      await OrderService.addToCart(productId, 1);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Added to cart")),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Failed to add to cart: $e")),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text(serviceName)),
       body: FutureBuilder<List<Item>>(
-        future:
-            ProductService.fetchProducts(category: serviceName),
+        future: ProductService.fetchProducts(category: serviceName),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -38,7 +51,7 @@ class ProductListPage extends StatelessWidget {
                 crossAxisCount: 2,
                 mainAxisSpacing: 12,
                 crossAxisSpacing: 12,
-                childAspectRatio: 0.7, // Adjust to make cards taller or shorter
+                childAspectRatio: 0.75,
               ),
               itemBuilder: (context, index) {
                 final item = items[index];
@@ -54,13 +67,12 @@ class ProductListPage extends StatelessWidget {
                           borderRadius: const BorderRadius.vertical(
                               top: Radius.circular(12)),
                           child: Image.asset(
-                            getImagePath(
-                                item.name),
+                            getImagePath(item.name),
                             width: double.infinity,
                             fit: BoxFit.cover,
                             errorBuilder: (context, error, stackTrace) {
                               return Image.asset(
-                                'assets/productImages/default_product.png', 
+                                'assets/productImages/default_product.png',
                                 fit: BoxFit.cover,
                                 width: double.infinity,
                               );
@@ -98,6 +110,21 @@ class ProductListPage extends StatelessWidget {
                               style: const TextStyle(
                                 fontWeight: FontWeight.w600,
                                 color: Colors.green,
+                              ),
+                            ),
+                            const SizedBox(height: 6),
+                            SizedBox(
+                              width: double.infinity,
+                              child: ElevatedButton.icon(
+                                icon: const Icon(Icons.add_shopping_cart),
+                                label: const Text("Add to Cart"),
+                                style: ElevatedButton.styleFrom(
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 10),
+                                  backgroundColor: Colors.deepPurple,
+                                ),
+                                onPressed: () =>
+                                    handleAddToCart(context, item.id),
                               ),
                             ),
                           ],
