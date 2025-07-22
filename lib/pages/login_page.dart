@@ -4,7 +4,6 @@ import 'package:agriplant/services/auth_service.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
-
 class LoginScreen extends StatefulWidget {
   @override
   _LoginScreenState createState() => _LoginScreenState();
@@ -75,8 +74,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   decoration: InputDecoration(
                     labelText: 'Password',
                     suffixIcon: IconButton(
-                      icon: Icon(
-                          _obscurePassword ? Icons.visibility : Icons.visibility_off),
+                      icon: Icon(_obscurePassword
+                          ? Icons.visibility
+                          : Icons.visibility_off),
                       onPressed: () {
                         setState(() {
                           _obscurePassword = !_obscurePassword;
@@ -108,34 +108,26 @@ class _LoginScreenState extends State<LoginScreen> {
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: () async {
-  final email = _emailController.text.trim();
-  final password = _passwordController.text.trim();
+                      final email = _emailController.text.trim();
+                      final password = _passwordController.text.trim();
 
-  final response = await http.post(
-    Uri.parse('http://localhost:8080/api/auth/login'), 
-    headers: {'Content-Type': 'application/json'},
-    body: jsonEncode({'email': email, 'password': password}),
-  );
+                      print('Calling AuthService.login...');
 
-  if (response.statusCode == 200) {
-    final data = jsonDecode(response.body);
-    final role = data['role'];
-    final token = data['token'];
+                      bool success = await AuthService.login(email, password);
 
-    // Store token using shared_preferences
-    // Navigate to home screen
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => HomePage()),
-    );
-  } else {
-    // Show error
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Invalid email or password')),
-    );
-  }
-},
-
+                      if (success) {
+                        print('Login successful, navigating to HomePage...');
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(builder: (context) => HomePage()),
+                        );
+                      } else {
+                        print('Login failed, showing snackbar...');
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Invalid email or password')),
+                        );
+                      }
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.green[700],
                       padding: EdgeInsets.symmetric(vertical: 14),
