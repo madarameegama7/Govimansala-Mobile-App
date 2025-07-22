@@ -14,13 +14,8 @@ static Future<bool> login(String email, String password) async {
     body: jsonEncode({'email': email, 'password': password}),
   );
 
-  print('Response status: ${response.statusCode}');
-  print('Response body: ${response.body}');
-
   if (response.statusCode == 200) {
     final data = jsonDecode(response.body);
-    print('Parsed response data: $data');
-    print('Token: ${data['token']}');
 
     try {
       final prefs = await SharedPreferences.getInstance();
