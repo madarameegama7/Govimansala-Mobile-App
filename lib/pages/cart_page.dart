@@ -1,7 +1,7 @@
-import 'package:agriplant/models/cart.dart';
-import 'package:agriplant/models/item.dart';
-import 'package:agriplant/services/cart_service.dart';
-import 'package:agriplant/services/product_service.dart';
+import 'package:govimansala/models/cart.dart';
+import 'package:govimansala/models/item.dart';
+import 'package:govimansala/services/cart_service.dart';
+import 'package:govimansala/services/product_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
 import 'package:shared_preferences/shared_preferences.dart';

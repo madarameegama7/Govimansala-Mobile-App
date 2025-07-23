@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:agriplant/pages/home_page.dart';
-import 'package:agriplant/services/auth_service.dart';
+import 'package:govimansala/pages/home_page.dart';
+import 'package:govimansala/services/auth_service.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
@@ -135,7 +135,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         borderRadius: BorderRadius.circular(30),
                       ),
                     ),
-                    child: Text('Log in', style: TextStyle(fontSize: 16)),
+                    child: Text('Log in', style: TextStyle(fontSize: 16,color:Colors.black,)),
                   ),
                 ),
                 const SizedBox(height: 24),
