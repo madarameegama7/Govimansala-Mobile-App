@@ -21,7 +21,9 @@ static Future<bool> login(String email, String password) async {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('token', data['token']);
       await prefs.setString('role', data['role']);
-      print('Token saved successfully');
+      await prefs.setInt('userId', data['userId']);
+
+      print('Token and userId saved successfully');
     } catch (e) {
       print('Error saving token: $e');
     }

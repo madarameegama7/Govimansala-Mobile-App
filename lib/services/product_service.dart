@@ -29,4 +29,30 @@ class ProductService {
       throw Exception("Failed to load products: ${response.statusCode}");
     }
   }
+  static Future<Item?> fetchProductById(int productId) async {
+  final prefs = await SharedPreferences.getInstance();
+  final token = prefs.getString('token');
+
+  if (token == null) {
+    throw Exception("User not authenticated. Token not found.");
+  }
+
+  final url = Uri.parse("http://localhost:8080/api/product/id/$productId");
+
+  final response = await http.get(
+    url,
+    headers: {
+      'Authorization': 'Bearer $token',
+      'Content-Type': 'application/json',
+    },
+  );
+
+  if (response.statusCode == 200) {
+    final data = json.decode(response.body);
+    return Item.fromJson(data);
+  } else {
+    throw Exception("Failed to load product with id $productId: ${response.statusCode}");
+  }
+}
+
 }
