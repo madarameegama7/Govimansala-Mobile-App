@@ -135,7 +135,7 @@ class _CartPageState extends State<CartPage> {
                 Text(
                   "Rs. ${totalPrice.toStringAsFixed(2)}",
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: Theme.of(context).colorScheme.primary,
+                        color: Colors.green,
                         fontWeight: FontWeight.bold,
                       ),
                 ),
@@ -150,6 +150,11 @@ class _CartPageState extends State<CartPage> {
                 },
                 label: const Text("Proceed to Checkout"),
                 icon: const Icon(IconlyBold.arrowRight),
+                style: FilledButton.styleFrom(
+                  backgroundColor: Colors.green,
+                  foregroundColor: Colors.white, 
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                ),
               ),
             )
           ],

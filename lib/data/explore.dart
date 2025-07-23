@@ -18,7 +18,7 @@ List<Explore> explores = [
   ),
   const Explore(
     name: "Agri Articles",
-    image: "assets/homePage/bank_loan.jpg",
+    image: "assets/homePage/agri_articles.jpg",
     description: "Posts about different agricultural topics",
   ),
  
