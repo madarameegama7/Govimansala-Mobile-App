@@ -1,4 +1,4 @@
-import 'package:agriplant/data/explore.dart';
+import 'package:govimansala/data/explore.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';

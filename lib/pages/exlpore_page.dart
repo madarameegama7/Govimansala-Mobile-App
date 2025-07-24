@@ -1,6 +1,6 @@
-import 'package:agriplant/data/explore.dart';
-import 'package:agriplant/widgets/explore_card.dart';
-import 'package:agriplant/widgets/weather_card.dart';
+import 'package:govimansala/data/explore.dart';
+import 'package:govimansala/widgets/explore_card.dart';
+import 'package:govimansala/widgets/weather_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
 

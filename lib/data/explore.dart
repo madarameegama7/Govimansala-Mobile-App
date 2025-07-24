@@ -3,7 +3,7 @@ import '../models/explore.dart';
 List<Explore> explores = [
    const Explore(
     name: "Market Place",
-    image: "assets/homePage/news_feed.jpg",
+    image: "assets/homePage/market_place.jpg",
     description: "Market Place",
   ),
   const Explore(
@@ -18,7 +18,7 @@ List<Explore> explores = [
   ),
   const Explore(
     name: "Agri Articles",
-    image: "assets/homePage/bank_loan.jpg",
+    image: "assets/homePage/agri_articles.jpg",
     description: "Posts about different agricultural topics",
   ),
  

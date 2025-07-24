@@ -109,7 +109,7 @@ class ProductListPage extends StatelessWidget {
                               "Rs. ${item.price.toStringAsFixed(2)}",
                               style: const TextStyle(
                                 fontWeight: FontWeight.w600,
-                                color: Colors.green,
+                                color: Colors.black,
                               ),
                             ),
                             const SizedBox(height: 6),
@@ -121,7 +121,8 @@ class ProductListPage extends StatelessWidget {
                                 style: ElevatedButton.styleFrom(
                                   padding: const EdgeInsets.symmetric(
                                       vertical: 10),
-                                  backgroundColor: Colors.deepPurple,
+                                  backgroundColor: Colors.green,
+                                  foregroundColor: Colors.white, 
                                 ),
                                 onPressed: () =>
                                     handleAddToCart(context, item.id),
