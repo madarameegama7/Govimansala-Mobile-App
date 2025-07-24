@@ -368,20 +368,20 @@ class _AddProductDialogState extends State<AddProductDialog> {
   };
 
   final Map<String, String> _productImages = {
-    // Vegetables
-    'Carrots': 'assets/productImages/carrots.jpg',
-    'Brinjal': 'assets/productImages/brinjal.jpg',
-    'Potatoes': 'assets/productImages/potatoes.jpg',
-    'Red Onions': 'assets/productImages/red_onions.jpg',
+    // Vegetables - Updated to match actual asset paths
+    'Carrots': 'assets/carrot.jpg',
+    'Brinjal': 'assets/Brinjal.jpg',
+    'Potatoes': 'assets/Potatoes.jpg',
+    'Red Onions': 'assets/RedOnion.jpg',
     'Tomatoes': 'assets/tomato.jpg',
-    // Fruits
-    'Avocado': 'assets/productImages/avocado.jpg',
-    'Bananas': 'assets/productImages/bananas.jpg',
-    'Guava': 'assets/productImages/guava.jpg',
-    'Mango': 'assets/productImages/mango.jpg',
-    'Papaya': 'assets/productImages/papaya.jpg',
-    'Watermelon': 'assets/productImages/watermelon.jpg',
-    'Pineapple': 'assets/productImages/pineapple.jpg',
+    // Fruits - Updated to match actual asset paths
+    'Avocado': 'assets/avacado.jpg',
+    'Bananas': 'assets/banana.jpg',
+    'Guava': 'assets/guava.jpg',
+    'Mango': 'assets/mango.jpeg',
+    'Papaya': 'assets/papaya.jpeg',
+    'Watermelon': 'assets/watermelon.jpg',
+    'Pineapple': 'assets/pineapple.jpeg',
   };
 
   String? _selectedProduct;
@@ -685,18 +685,18 @@ class _AddProductDialogState extends State<AddProductDialog> {
                 // Debug token info
                 await ProductService.debugTokenInfo();
                 
-                // Prepare data for backend API
+                // Prepare data for backend API - match Java backend field names
                 final productData = {
                   'name': _selectedProduct!, // Use selected product name
                   'category': _selectedCategory,
-                  'unit_price': double.parse(_priceController.text),
+                  'unitPrice': double.parse(_priceController.text), // camelCase to match Java
                   'quantity': int.parse(_stockController.text),
-                  'harvest_date': _harvestDate?.toIso8601String().split('T')[0],
-                  'expiry_date': _expiryDate?.toIso8601String().split('T')[0],
+                  'harvestDate': _harvestDate?.toIso8601String().split('T')[0], // camelCase to match Java
+                  'expiryDate': _expiryDate?.toIso8601String().split('T')[0], // camelCase to match Java
                   'status': _selectedStatus,
                   'location': _locationController.text.trim(),
                   'description': _descriptionController.text.trim(),
-                  'is_organic': _isOrganic,
+                  'isOrganic': _isOrganic, // camelCase to match Java
                 };
 
                 print("Product data to send: $productData");
@@ -792,20 +792,20 @@ class Product {
   factory Product.fromJson(Map<String, dynamic> json) {
     // Define the product images mapping here too for consistency
     final Map<String, String> productImages = {
-      // Vegetables
-      'Carrots': 'assets/productImages/carrots.jpg',
-      'Brinjal': 'assets/productImages/brinjal.jpg',
-      'Potatoes': 'assets/productImages/potatoes.jpg',
-      'Red Onions': 'assets/productImages/red_onions.jpg',
+      // Vegetables - Updated to match actual asset paths
+      'Carrots': 'assets/carrot.jpg',
+      'Brinjal': 'assets/Brinjal.jpg',
+      'Potatoes': 'assets/Potatoes.jpg',
+      'Red Onions': 'assets/RedOnion.jpg',
       'Tomatoes': 'assets/tomato.jpg',
-      // Fruits
-      'Avocado': 'assets/productImages/avocado.jpg',
-      'Bananas': 'assets/productImages/bananas.jpg',
-      'Guava': 'assets/productImages/guava.jpg',
-      'Mango': 'assets/productImages/mango.jpg',
-      'Papaya': 'assets/productImages/papaya.jpg',
-      'Watermelon': 'assets/productImages/watermelon.jpg',
-      'Pineapple': 'assets/productImages/pineapple.jpg',
+      // Fruits - Updated to match actual asset paths
+      'Avocado': 'assets/avacado.jpg',
+      'Bananas': 'assets/banana.jpg',
+      'Guava': 'assets/guava.jpg',
+      'Mango': 'assets/mango.jpeg',
+      'Papaya': 'assets/papaya.jpeg',
+      'Watermelon': 'assets/watermelon.jpg',
+      'Pineapple': 'assets/pineapple.jpeg',
     };
 
     final productName = json['name']?.toString() ?? '';
