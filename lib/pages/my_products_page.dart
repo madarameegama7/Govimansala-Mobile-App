@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
+import '../services/product_service.dart';
 
 class MyProductsPage extends StatefulWidget {
   const MyProductsPage({super.key});
@@ -9,50 +10,121 @@ class MyProductsPage extends StatefulWidget {
 }
 
 class _MyProductsPageState extends State<MyProductsPage> {
-  // Sample data - in a real app, this would come from a database or API
-  List<Product> myProducts = [
-    Product(
-      id: '1',
-      name: 'Organic Tomatoes',
-      price: 150.0,
-      description: 'Fresh organic tomatoes from our farm',
-      imageUrl: 'assets/tomato.jpg',
-      category: 'Vegetables',
-      stock: 50,
-    ),
-    Product(
-      id: '2',
-      name: 'Red Chillies',
-      price: 200.0,
-      description: 'Spicy red chillies, organically grown',
-      imageUrl: 'assets/productImages/chillie.jpg',
-      category: 'Spices',
-      stock: 25,
-    ),
-  ];
+  List<Product> myProducts = [];
+  bool isLoading = true;
+  String? errorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadMyProducts();
+  }
+
+  Future<void> _loadMyProducts() async {
+    try {
+      setState(() {
+        isLoading = true;
+        errorMessage = null;
+      });
+
+      print("=== LOADING PRODUCTS DEBUG ===");
+      final farmerProducts = await ProductService.fetchFarmerProducts();
+      print("Raw farmer products data: $farmerProducts");
+      
+      setState(() {
+        myProducts = farmerProducts.map((productData) {
+          print("Converting product data: $productData");
+          try {
+            return Product.fromJson(productData);
+          } catch (e) {
+            print("Error converting product: $e");
+            print("Problematic data: $productData");
+            rethrow;
+          }
+        }).toList();
+        isLoading = false;
+      });
+      
+      print("Successfully loaded ${myProducts.length} products");
+      print("=============================");
+    } catch (e) {
+      print("Error in _loadMyProducts: $e");
+      setState(() {
+        errorMessage = e.toString();
+        isLoading = false;
+      });
+      print('Error loading products: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('My Products'),
-        
+        actions: [
+          IconButton(
+            onPressed: _loadMyProducts,
+            icon: const Icon(Icons.refresh),
+            tooltip: 'Refresh',
+          ),
+        ],
       ),
-      body: myProducts.isEmpty
-          ? _buildEmptyState()
-          : ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: myProducts.length,
-              itemBuilder: (context, index) {
-                return _buildProductCard(myProducts[index]);
-              },
-            ),
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : errorMessage != null
+              ? _buildErrorState()
+              : myProducts.isEmpty
+                  ? _buildEmptyState()
+                  : ListView.builder(
+                      padding: const EdgeInsets.all(16),
+                      itemCount: myProducts.length,
+                      itemBuilder: (context, index) {
+                        return _buildProductCard(myProducts[index]);
+                      },
+                    ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           _showAddProductDialog();
         },
         child: const Icon(IconlyLight.plus),
         tooltip: 'Add Product',
+      ),
+    );
+  }
+
+  Widget _buildErrorState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.error_outline,
+            size: 80,
+            color: Colors.red[400],
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'Error loading products',
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  color: Colors.red[600],
+                ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            errorMessage ?? 'Unknown error occurred',
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Colors.grey[600],
+                ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 24),
+          ElevatedButton.icon(
+            onPressed: _loadMyProducts,
+            icon: const Icon(Icons.refresh),
+            label: const Text('Retry'),
+          ),
+        ],
       ),
     );
   }
@@ -205,9 +277,7 @@ class _MyProductsPageState extends State<MyProductsPage> {
       builder: (BuildContext context) {
         return AddProductDialog(
           onProductAdded: (Product product) {
-            setState(() {
-              myProducts.add(product);
-            });
+            _loadMyProducts(); // Refresh the list from database
           },
         );
       },
@@ -221,12 +291,7 @@ class _MyProductsPageState extends State<MyProductsPage> {
         return AddProductDialog(
           product: product,
           onProductAdded: (Product updatedProduct) {
-            setState(() {
-              int index = myProducts.indexWhere((p) => p.id == product.id);
-              if (index != -1) {
-                myProducts[index] = updatedProduct;
-              }
-            });
+            _loadMyProducts(); // Refresh the list from database
           },
         );
       },
@@ -282,36 +347,81 @@ class AddProductDialog extends StatefulWidget {
 
 class _AddProductDialogState extends State<AddProductDialog> {
   final _formKey = GlobalKey<FormState>();
-  late TextEditingController _nameController;
   late TextEditingController _priceController;
   late TextEditingController _descriptionController;
   late TextEditingController _stockController;
+  late TextEditingController _locationController;
   String _selectedCategory = 'Vegetables';
+  String _selectedStatus = 'AVAILABLE';
+  bool _isOrganic = false;
+  DateTime? _harvestDate;
+  DateTime? _expiryDate;
 
   final List<String> _categories = [
     'Vegetables',
     'Fruits'
   ];
 
+  final Map<String, List<String>> _categoryProducts = {
+    'Vegetables': ['Carrots', 'Brinjal', 'Potatoes', 'Red Onions', 'Tomatoes'],
+    'Fruits': ['Avocado', 'Bananas', 'Guava', 'Mango', 'Papaya', 'Watermelon', 'Pineapple'],
+  };
+
+  final Map<String, String> _productImages = {
+    // Vegetables
+    'Carrots': 'assets/productImages/carrots.jpg',
+    'Brinjal': 'assets/productImages/brinjal.jpg',
+    'Potatoes': 'assets/productImages/potatoes.jpg',
+    'Red Onions': 'assets/productImages/red_onions.jpg',
+    'Tomatoes': 'assets/tomato.jpg',
+    // Fruits
+    'Avocado': 'assets/productImages/avocado.jpg',
+    'Bananas': 'assets/productImages/bananas.jpg',
+    'Guava': 'assets/productImages/guava.jpg',
+    'Mango': 'assets/productImages/mango.jpg',
+    'Papaya': 'assets/productImages/papaya.jpg',
+    'Watermelon': 'assets/productImages/watermelon.jpg',
+    'Pineapple': 'assets/productImages/pineapple.jpg',
+  };
+
+  String? _selectedProduct;
+
+  final List<String> _statusOptions = [
+    'AVAILABLE',
+    'OUT_OF_STOCK',
+    'DISCONTINUED'
+  ];
+
   @override
   void initState() {
     super.initState();
-    _nameController = TextEditingController(text: widget.product?.name ?? '');
     _priceController = TextEditingController(
         text: widget.product?.price.toString() ?? '');
     _descriptionController =
         TextEditingController(text: widget.product?.description ?? '');
     _stockController =
         TextEditingController(text: widget.product?.stock.toString() ?? '');
+    _locationController = TextEditingController(text: widget.product?.location ?? '');
     _selectedCategory = widget.product?.category ?? 'Vegetables';
+    _selectedStatus = widget.product?.status ?? 'AVAILABLE';
+    _isOrganic = widget.product?.isOrganic ?? false;
+    _harvestDate = widget.product?.harvestDate;
+    _expiryDate = widget.product?.expiryDate;
+    
+    // Initialize selected product based on existing product name or first item
+    if (widget.product != null && _categoryProducts[_selectedCategory]?.contains(widget.product!.name) == true) {
+      _selectedProduct = widget.product!.name;
+    } else {
+      _selectedProduct = _categoryProducts[_selectedCategory]?.first;
+    }
   }
 
   @override
   void dispose() {
-    _nameController.dispose();
     _priceController.dispose();
     _descriptionController.dispose();
     _stockController.dispose();
+    _locationController.dispose();
     super.dispose();
   }
 
@@ -327,15 +437,69 @@ class _AddProductDialogState extends State<AddProductDialog> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                TextFormField(
-                  controller: _nameController,
+                DropdownButtonFormField<String>(
+                  value: _selectedCategory,
+                  decoration: const InputDecoration(
+                    labelText: 'Category',
+                    border: OutlineInputBorder(),
+                  ),
+                  items: _categories.map((String category) {
+                    return DropdownMenuItem<String>(
+                      value: category,
+                      child: Text(category),
+                    );
+                  }).toList(),
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      _selectedCategory = newValue!;
+                      // Reset product selection when category changes
+                      _selectedProduct = _categoryProducts[_selectedCategory]?.first;
+                    });
+                  },
+                ),
+                const SizedBox(height: 16),
+                DropdownButtonFormField<String>(
+                  value: _selectedProduct,
                   decoration: const InputDecoration(
                     labelText: 'Product Name',
                     border: OutlineInputBorder(),
                   ),
+                  items: _categoryProducts[_selectedCategory]?.map((String product) {
+                    return DropdownMenuItem<String>(
+                      value: product,
+                      child: Row(
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(4),
+                            child: Image.asset(
+                              _productImages[product] ?? 'assets/productImages/default_product.png',
+                              width: 24,
+                              height: 24,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Container(
+                                  width: 24,
+                                  height: 24,
+                                  color: Colors.grey[200],
+                                  child: const Icon(Icons.image, size: 16),
+                                );
+                              },
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(product),
+                        ],
+                      ),
+                    );
+                  }).toList() ?? [],
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      _selectedProduct = newValue;
+                    });
+                  },
                   validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return 'Please enter product name';
+                    if (value == null || value.isEmpty) {
+                      return 'Please select a product';
                     }
                     return null;
                   },
@@ -356,25 +520,6 @@ class _AddProductDialogState extends State<AddProductDialog> {
                       return 'Please enter valid price';
                     }
                     return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-                DropdownButtonFormField<String>(
-                  value: _selectedCategory,
-                  decoration: const InputDecoration(
-                    labelText: 'Category',
-                    border: OutlineInputBorder(),
-                  ),
-                  items: _categories.map((String category) {
-                    return DropdownMenuItem<String>(
-                      value: category,
-                      child: Text(category),
-                    );
-                  }).toList(),
-                  onChanged: (String? newValue) {
-                    setState(() {
-                      _selectedCategory = newValue!;
-                    });
                   },
                 ),
                 const SizedBox(height: 16),
@@ -410,6 +555,111 @@ class _AddProductDialogState extends State<AddProductDialog> {
                     return null;
                   },
                 ),
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: _locationController,
+                  decoration: const InputDecoration(
+                    labelText: 'Farm Location',
+                    border: OutlineInputBorder(),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return 'Please enter farm location';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 16),
+                DropdownButtonFormField<String>(
+                  value: _selectedStatus,
+                  decoration: const InputDecoration(
+                    labelText: 'Status',
+                    border: OutlineInputBorder(),
+                  ),
+                  items: _statusOptions.map((String status) {
+                    return DropdownMenuItem<String>(
+                      value: status,
+                      child: Text(status.replaceAll('_', ' ')),
+                    );
+                  }).toList(),
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      _selectedStatus = newValue!;
+                    });
+                  },
+                ),
+                const SizedBox(height: 16),
+                SwitchListTile(
+                  title: const Text('Organic Product'),
+                  value: _isOrganic,
+                  onChanged: (bool value) {
+                    setState(() {
+                      _isOrganic = value;
+                    });
+                  },
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Expanded(
+                      child: InkWell(
+                        onTap: () async {
+                          final date = await showDatePicker(
+                            context: context,
+                            initialDate: _harvestDate ?? DateTime.now(),
+                            firstDate: DateTime.now().subtract(const Duration(days: 365)),
+                            lastDate: DateTime.now(),
+                          );
+                          if (date != null) {
+                            setState(() {
+                              _harvestDate = date;
+                            });
+                          }
+                        },
+                        child: InputDecorator(
+                          decoration: const InputDecoration(
+                            labelText: 'Harvest Date',
+                            border: OutlineInputBorder(),
+                          ),
+                          child: Text(
+                            _harvestDate != null
+                                ? '${_harvestDate!.day}/${_harvestDate!.month}/${_harvestDate!.year}'
+                                : 'Select Date',
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: InkWell(
+                        onTap: () async {
+                          final date = await showDatePicker(
+                            context: context,
+                            initialDate: _expiryDate ?? DateTime.now().add(const Duration(days: 30)),
+                            firstDate: DateTime.now(),
+                            lastDate: DateTime.now().add(const Duration(days: 365)),
+                          );
+                          if (date != null) {
+                            setState(() {
+                              _expiryDate = date;
+                            });
+                          }
+                        },
+                        child: InputDecorator(
+                          decoration: const InputDecoration(
+                            labelText: 'Expiry Date',
+                            border: OutlineInputBorder(),
+                          ),
+                          child: Text(
+                            _expiryDate != null
+                                ? '${_expiryDate!.day}/${_expiryDate!.month}/${_expiryDate!.year}'
+                                : 'Select Date',
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ],
             ),
           ),
@@ -421,28 +671,81 @@ class _AddProductDialogState extends State<AddProductDialog> {
           child: const Text('Cancel'),
         ),
         ElevatedButton(
-          onPressed: () {
+          onPressed: () async {
             if (_formKey.currentState!.validate()) {
-              final product = Product(
-                id: widget.product?.id ?? DateTime.now().millisecondsSinceEpoch.toString(),
-                name: _nameController.text.trim(),
-                price: double.parse(_priceController.text),
-                description: _descriptionController.text.trim(),
-                category: _selectedCategory,
-                stock: int.parse(_stockController.text),
-                imageUrl: widget.product?.imageUrl ?? 'assets/productImages/default_product.png',
-              );
-              
-              widget.onProductAdded(product);
-              Navigator.of(context).pop();
-              
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(widget.product == null 
-                      ? 'Product added successfully' 
-                      : 'Product updated successfully'),
-                ),
-              );
+              try {
+                print("=== FORM SUBMISSION DEBUG ===");
+                print("Selected product: $_selectedProduct");
+                print("Selected category: $_selectedCategory");
+                print("Price: ${_priceController.text}");
+                print("Stock: ${_stockController.text}");
+                print("Harvest date: $_harvestDate");
+                print("Expiry date: $_expiryDate");
+                
+                // Debug token info
+                await ProductService.debugTokenInfo();
+                
+                // Prepare data for backend API
+                final productData = {
+                  'name': _selectedProduct!, // Use selected product name
+                  'category': _selectedCategory,
+                  'unit_price': double.parse(_priceController.text),
+                  'quantity': int.parse(_stockController.text),
+                  'harvest_date': _harvestDate?.toIso8601String().split('T')[0],
+                  'expiry_date': _expiryDate?.toIso8601String().split('T')[0],
+                  'status': _selectedStatus,
+                  'location': _locationController.text.trim(),
+                  'description': _descriptionController.text.trim(),
+                  'is_organic': _isOrganic,
+                };
+
+                print("Product data to send: $productData");
+
+                // Send to backend
+                bool success = await ProductService.addFarmerProduct(productData);
+                print("Add product success: $success");
+
+                // Create product for local state update
+                final product = Product(
+                  id: widget.product?.id ?? DateTime.now().millisecondsSinceEpoch.toString(),
+                  name: _selectedProduct!, // Use selected product name
+                  price: double.parse(_priceController.text),
+                  description: _descriptionController.text.trim(),
+                  category: _selectedCategory,
+                  stock: int.parse(_stockController.text),
+                  imageUrl: _productImages[_selectedProduct!] ?? 'assets/productImages/default_product.png', // Automatic image
+                  location: _locationController.text.trim(),
+                  isOrganic: _isOrganic,
+                  status: _selectedStatus,
+                  harvestDate: _harvestDate,
+                  expiryDate: _expiryDate,
+                  createdAt: widget.product?.createdAt ?? DateTime.now(),
+                  updatedAt: DateTime.now(),
+                );
+                
+                widget.onProductAdded(product);
+                Navigator.of(context).pop();
+                
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(widget.product == null 
+                        ? 'Product added successfully to database!' 
+                        : 'Product updated successfully!'),
+                    backgroundColor: Colors.green,
+                  ),
+                );
+                print("===========================");
+              } catch (e) {
+                print("Error in form submission: $e");
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Error: ${e.toString()}'),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+              }
+            } else {
+              print("Form validation failed");
             }
           },
           child: Text(widget.product == null ? 'Add' : 'Update'),
@@ -460,6 +763,13 @@ class Product {
   final String imageUrl;
   final String category;
   final int stock;
+  final String? location;
+  final bool isOrganic;
+  final String status;
+  final DateTime? harvestDate;
+  final DateTime? expiryDate;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
 
   Product({
     required this.id,
@@ -469,5 +779,129 @@ class Product {
     required this.imageUrl,
     required this.category,
     required this.stock,
+    this.location,
+    this.isOrganic = false,
+    this.status = 'AVAILABLE',
+    this.harvestDate,
+    this.expiryDate,
+    this.createdAt,
+    this.updatedAt,
   });
+
+  // Convert from JSON (API response)
+  factory Product.fromJson(Map<String, dynamic> json) {
+    // Define the product images mapping here too for consistency
+    final Map<String, String> productImages = {
+      // Vegetables
+      'Carrots': 'assets/productImages/carrots.jpg',
+      'Brinjal': 'assets/productImages/brinjal.jpg',
+      'Potatoes': 'assets/productImages/potatoes.jpg',
+      'Red Onions': 'assets/productImages/red_onions.jpg',
+      'Tomatoes': 'assets/tomato.jpg',
+      // Fruits
+      'Avocado': 'assets/productImages/avocado.jpg',
+      'Bananas': 'assets/productImages/bananas.jpg',
+      'Guava': 'assets/productImages/guava.jpg',
+      'Mango': 'assets/productImages/mango.jpg',
+      'Papaya': 'assets/productImages/papaya.jpg',
+      'Watermelon': 'assets/productImages/watermelon.jpg',
+      'Pineapple': 'assets/productImages/pineapple.jpg',
+    };
+
+    final productName = json['name']?.toString() ?? '';
+    
+    // Safe conversion for productId - handle both int and string cases
+    String productId = '';
+    if (json['productId'] != null) {
+      productId = json['productId'].toString();
+    } else if (json['product_id'] != null) {
+      productId = json['product_id'].toString();
+    }
+
+    // Handle product name variations for image mapping
+    String imageKey = productName;
+    if (productName.contains('Tomato')) {
+      imageKey = 'Tomatoes';
+    } else if (productName.contains('Carrot')) {
+      imageKey = 'Carrots';
+    } else if (productName.contains('Brinjal')) {
+      imageKey = 'Brinjal';
+    } else if (productName.contains('Potato')) {
+      imageKey = 'Potatoes';
+    } else if (productName.contains('Onion')) {
+      imageKey = 'Red Onions';
+    } else if (productName.contains('Avocado')) {
+      imageKey = 'Avocado';
+    } else if (productName.contains('Banana')) {
+      imageKey = 'Bananas';
+    } else if (productName.contains('Guava')) {
+      imageKey = 'Guava';
+    } else if (productName.contains('Mango')) {
+      imageKey = 'Mango';
+    } else if (productName.contains('Papaya')) {
+      imageKey = 'Papaya';
+    } else if (productName.contains('Watermelon')) {
+      imageKey = 'Watermelon';
+    } else if (productName.contains('Pineapple')) {
+      imageKey = 'Pineapple';
+    }
+    
+    return Product(
+      id: productId,
+      name: productName,
+      price: (json['unitPrice'] ?? json['unit_price'] ?? 0).toDouble(),
+      description: json['description']?.toString() ?? '',
+      imageUrl: productImages[imageKey] ?? 'assets/productImages/default_product.png', // Auto-assign image using imageKey
+      category: json['category']?.toString() ?? '',
+      stock: (json['quantity'] ?? 0).toInt(),
+      location: json['location']?.toString(),
+      isOrganic: json['isOrganic'] ?? json['is_organic'] ?? false,
+      status: json['status']?.toString() ?? 'AVAILABLE',
+      harvestDate: json['harvestDate'] != null || json['harvest_date'] != null
+          ? DateTime.tryParse((json['harvestDate'] ?? json['harvest_date']).toString()) 
+          : null,
+      expiryDate: json['expiryDate'] != null || json['expiry_date'] != null
+          ? DateTime.tryParse((json['expiryDate'] ?? json['expiry_date']).toString()) 
+          : null,
+      createdAt: json['createdAt'] != null || json['created_at'] != null
+          ? DateTime.tryParse((json['createdAt'] ?? json['created_at']).toString()) 
+          : null,
+      updatedAt: json['updatedAt'] != null || json['updated_at'] != null
+          ? DateTime.tryParse((json['updatedAt'] ?? json['updated_at']).toString()) 
+          : null,
+    );
+  }
+
+  // Convert to JSON (API request)
+  Map<String, dynamic> toJson() {
+    return {
+      'name': name,
+      'category': category,
+      'unit_price': price,
+      'quantity': stock,
+      'description': description,
+      if (location != null) 'location': location,
+      'is_organic': isOrganic,
+      'status': status,
+      if (harvestDate != null) 'harvest_date': harvestDate!.toIso8601String().split('T')[0],
+      if (expiryDate != null) 'expiry_date': expiryDate!.toIso8601String().split('T')[0],
+    };
+  }
+
+  // Helper method to get formatted price
+  String get formattedPrice => 'Rs. ${price.toStringAsFixed(0)}';
+
+  // Helper method to check stock status
+  String get stockStatus {
+    if (status != 'AVAILABLE') return status;
+    if (stock <= 0) return 'Out of Stock';
+    if (stock < 10) return 'Low Stock';
+    return 'In Stock';
+  }
+
+  // Helper method to check if expired
+  bool get isExpired {
+    if (expiryDate == null) return false;
+    return DateTime.now().isAfter(expiryDate!);
+  }
 }
