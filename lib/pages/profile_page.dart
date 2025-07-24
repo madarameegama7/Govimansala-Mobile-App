@@ -1,4 +1,5 @@
 import 'package:govimansala/pages/orders_page.dart';
+import 'package:govimansala/pages/my_products_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
 
@@ -43,6 +44,17 @@ class ProfilePage extends StatelessWidget {
                   context,
                   MaterialPageRoute(
                     builder: (context) => const OrdersPage(),
+                  ));
+            },
+          ),
+          ListTile(
+            title: const Text("My products"),
+            leading: const Icon(IconlyLight.buy),
+            onTap: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const MyProductsPage(),
                   ));
             },
           ),
