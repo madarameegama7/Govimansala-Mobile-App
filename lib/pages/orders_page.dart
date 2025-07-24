@@ -1,7 +1,7 @@
 import 'dart:math';
 
-import 'package:agriplant/data/orders.dart';
-import 'package:agriplant/widgets/order_item.dart';
+import 'package:govimansala/data/orders.dart';
+import 'package:govimansala/widgets/order_item.dart';
 import 'package:flutter/material.dart';
 
 class OrdersPage extends StatelessWidget {

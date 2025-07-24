@@ -1,7 +1,7 @@
-import 'package:agriplant/pages/onboarding_page.dart';
+import 'package:govimansala/pages/onboarding_page.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:agriplant/pages/login_page.dart';
+import 'package:govimansala/pages/login_page.dart';
 
 void main() {
   runApp(const MainApp());

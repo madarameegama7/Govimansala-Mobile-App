@@ -1,4 +1,4 @@
-import 'package:agriplant/models/cart_item.dart';
+import 'package:govimansala/models/cart_item.dart';
 
 class CartModel {
   final int cartId;
