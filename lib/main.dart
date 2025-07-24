@@ -2,6 +2,7 @@ import 'package:govimansala/pages/onboarding_page.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:govimansala/pages/login_page.dart';
+import 'package:govimansala/pages/order.dart';
 
 void main() {
   runApp(const MainApp());
@@ -10,7 +11,7 @@ void main() {
 class MainApp extends StatelessWidget {
   const MainApp({super.key});
 
-@override
+  @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Govimansala',
@@ -20,6 +21,9 @@ class MainApp extends StatelessWidget {
         textTheme: GoogleFonts.poppinsTextTheme(),
       ),
       home: LoginScreen(),
+      routes: {
+        '/orderDetails': (context) => OrderDetailsPage(),
+      },
     );
   }
 }
