@@ -1,10 +1,11 @@
-import 'package:agriplant/models/cart.dart';
-import 'package:agriplant/models/item.dart';
-import 'package:agriplant/services/cart_service.dart';
-import 'package:agriplant/services/product_service.dart';
+import 'package:govimansala/models/cart.dart';
+import 'package:govimansala/models/item.dart';
+import 'package:govimansala/services/cart_service.dart';
+import 'package:govimansala/services/product_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:govimansala/services/order_service.dart';
 
 class CartDisplayItem {
   final Item product;
@@ -135,7 +136,7 @@ class _CartPageState extends State<CartPage> {
                 Text(
                   "Rs. ${totalPrice.toStringAsFixed(2)}",
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: Theme.of(context).colorScheme.primary,
+                        color: Colors.green,
                         fontWeight: FontWeight.bold,
                       ),
                 ),
@@ -145,11 +146,31 @@ class _CartPageState extends State<CartPage> {
             SizedBox(
               width: double.infinity,
               child: FilledButton.icon(
-                onPressed: () {
-                  // TODO: Implement checkout logic
-                },
+               onPressed: () async {
+  try {
+    final responseOrderId = await OrderService.checkoutCart(cart!.cartId);
+    if (responseOrderId != null) {
+      Navigator.pushNamed(context, '/orderDetails', arguments: responseOrderId);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Checkout failed. Please try again.')),
+      );
+    }
+  } catch (e) {
+    print("Checkout error: $e");
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('An error occurred during checkout')),
+    );
+  }
+},
+
                 label: const Text("Proceed to Checkout"),
                 icon: const Icon(IconlyBold.arrowRight),
+                style: FilledButton.styleFrom(
+                  backgroundColor: Colors.green,
+                  foregroundColor: Colors.white, 
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                ),
               ),
             )
           ],

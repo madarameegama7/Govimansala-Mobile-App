@@ -1,4 +1,4 @@
-name: agriplant
+name: govimansala
 description: Agriculture plant app
 publish_to: "none"
 version: 0.1.0
@@ -10,19 +10,20 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_iconly: ^1.0.2
-  google_fonts: ^5.1.0
+  google_fonts: ^6.3.2
   badges: ^3.1.1
   timelines: ^0.1.0
   easy_stepper: 0.8.5+1
   archive: ^4.0.7
-  win32: 5.14.0
+  win32: ^5.15.0
   http: ^1.2.0
   shared_preferences: ^2.2.2
+  intl: ^0.18.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^2.0.2
+  flutter_lints: ^6.0.0
 
 flutter:
   uses-material-design: true

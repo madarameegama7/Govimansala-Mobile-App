@@ -1,7 +1,7 @@
-import 'package:agriplant/pages/cart_page.dart';
-import 'package:agriplant/pages/exlpore_page.dart';
-import 'package:agriplant/pages/profile_page.dart';
-import 'package:agriplant/pages/services_page.dart';
+import 'package:govimansala/pages/cart_page.dart';
+import 'package:govimansala/pages/exlpore_page.dart';
+import 'package:govimansala/pages/profile_page.dart';
+import 'package:govimansala/pages/services_page.dart';
 import 'package:badges/badges.dart' as badges;
 import 'package:flutter/material.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
@@ -68,6 +68,8 @@ class _HomePageState extends State<HomePage> {
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         currentIndex: currentPageIndex,
+         selectedItemColor: Colors.green[700],
+         unselectedItemColor: Colors.grey[600], 
         onTap: (index) {
           setState(() {
             currentPageIndex = index;
@@ -80,9 +82,9 @@ class _HomePageState extends State<HomePage> {
             activeIcon: Icon(IconlyBold.home),
           ),
           BottomNavigationBarItem(
-            icon: Icon(IconlyLight.call),
-            label: "Services",
-            activeIcon: Icon(IconlyBold.call),
+            icon: Icon(IconlyLight.bag),
+            label: "Market",
+            activeIcon: Icon(IconlyBold.bag),
           ),
           BottomNavigationBarItem(
             icon: Icon(IconlyLight.buy),

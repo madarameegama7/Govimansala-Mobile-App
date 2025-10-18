@@ -1,7 +1,18 @@
-import 'package:agriplant/pages/onboarding_page.dart';
+import 'package:govimansala/pages/onboarding_page.dart';
+import 'package:govimansala/pages/home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:agriplant/pages/login_page.dart';
+import 'package:govimansala/pages/login_page.dart';
+import 'package:govimansala/pages/info_center/agri_articles.dart';
+import 'package:govimansala/pages/info_center/crop_cultivation.dart';
+import 'package:govimansala/pages/info_center/government_policies.dart';
+import 'package:govimansala/pages/info_center/bank_loans.dart';
+import 'package:govimansala/pages/info_center/agri_essentials.dart';
+import 'package:govimansala/pages/onboarding_page.dart';
+import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:govimansala/pages/login_page.dart';
+import 'package:govimansala/pages/order.dart';
 
 void main() {
   runApp(const MainApp());
@@ -10,7 +21,7 @@ void main() {
 class MainApp extends StatelessWidget {
   const MainApp({super.key});
 
-@override
+  @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Govimansala',
@@ -18,8 +29,35 @@ class MainApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.green,
         textTheme: GoogleFonts.poppinsTextTheme(),
+        useMaterial3: true,
       ),
-      home: LoginScreen(),
+      initialRoute: '/login',
+      routes: {
+        '/onboarding': (_) => const OnboardingPage(),
+        '/login': (_) => LoginScreen(),
+        '/': (_) =>
+            const HomePage(), // HomePage holds AppBar and BottomNavigationBar
+        '/crop-cultivation': (_) => const CropCultivationPage(),
+        '/agri-essentials': (_) => const AgriEssentialsPage(),
+        '/agri-articles': (_) => const AgriArticlesPage(),
+        '/bank-loans': (_) => const BankLoansPage(),
+        '/government-policies': (_) => const GovernmentPoliciesPage(),
+        '/orderDetails': (context) => OrderDetailsPage(),
+      },
     );
   }
 }
+
+// @override
+//   Widget build(BuildContext context) {
+//     return MaterialApp(
+//       title: 'Govimansala',
+//       debugShowCheckedModeBanner: false,
+//       theme: ThemeData(
+//         primarySwatch: Colors.green,
+//         textTheme: GoogleFonts.poppinsTextTheme(),
+//       ),
+//       home: LoginScreen(),
+//     );
+//   }
+// }
