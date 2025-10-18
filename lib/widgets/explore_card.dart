@@ -1,4 +1,4 @@
-import 'package:agriplant/models/explore.dart';
+import 'package:govimansala/models/explore.dart';
 import 'package:flutter/material.dart';
 
 import '../pages/explore_details_page.dart';

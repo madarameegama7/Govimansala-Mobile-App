@@ -8,6 +8,11 @@ import 'package:agriplant/pages/info_center/crop_cultivation.dart';
 import 'package:agriplant/pages/info_center/government_policies.dart';
 import 'package:agriplant/pages/info_center/bank_loans.dart';
 import 'package:agriplant/pages/info_center/agri_essentials.dart';
+import 'package:govimansala/pages/onboarding_page.dart';
+import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:govimansala/pages/login_page.dart';
+import 'package:govimansala/pages/order.dart';
 
 void main() {
   runApp(const MainApp());
@@ -37,6 +42,7 @@ class MainApp extends StatelessWidget {
         '/agri-articles': (_) => const AgriArticlesPage(),
         '/bank-loans': (_) => const BankLoansPage(),
         '/government-policies': (_) => const GovernmentPoliciesPage(),
+        '/orderDetails': (context) => OrderDetailsPage(),
       },
     );
   }
