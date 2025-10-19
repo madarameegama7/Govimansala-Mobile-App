@@ -13,6 +13,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:govimansala/pages/login_page.dart';
 import 'package:govimansala/pages/order.dart';
+import 'package:govimansala/pages/services_page.dart';
+import 'package:govimansala/pages/farmer_products/my_products_page.dart';
 
 void main() {
   runApp(const MainApp());
@@ -43,6 +45,8 @@ class MainApp extends StatelessWidget {
         '/bank-loans': (_) => const BankLoansPage(),
         '/government-policies': (_) => const GovernmentPoliciesPage(),
         '/orderDetails': (context) => OrderDetailsPage(),
+        '/market-place': (context) => ServicesPage(serviceName: 'Market Place'),
+         '/my-products': (context) => const MyProductsPage(),
       },
     );
   }
