@@ -4,11 +4,16 @@ import '../data/services.dart';
 import '../pages/product_list_page.dart'; 
 
 class ServicesPage extends StatelessWidget {
-  const ServicesPage({super.key});
+  final String? serviceName; // Make it optional
+  
+  const ServicesPage({super.key, this.serviceName});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Text(serviceName ?? 'Market Place'), // Default title
+      ),
       body: GridView.builder(
         itemCount: services.length,
         padding: const EdgeInsets.all(16),

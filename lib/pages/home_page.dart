@@ -2,6 +2,7 @@ import 'package:govimansala/pages/cart_page.dart';
 import 'package:govimansala/pages/exlpore_page.dart';
 import 'package:govimansala/pages/profile_page.dart';
 import 'package:govimansala/pages/services_page.dart';
+import 'package:govimansala/pages/farmer_products/my_products_page.dart';
 import 'package:badges/badges.dart' as badges;
 import 'package:flutter/material.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
@@ -14,7 +15,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final pages = [const ExplorePage(),const ServicesPage(), const CartPage(), const ProfilePage()];
+  final pages = [const ExplorePage(),const MyProductsPage(), const CartPage(), const ProfilePage()];
   int currentPageIndex = 0;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -83,7 +84,7 @@ class _HomePageState extends State<HomePage> {
           ),
           BottomNavigationBarItem(
             icon: Icon(IconlyLight.bag),
-            label: "Market",
+            label: "Products",
             activeIcon: Icon(IconlyBold.bag),
           ),
           BottomNavigationBarItem(
