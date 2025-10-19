@@ -5,6 +5,7 @@ List<Explore> explores = [
     name: "Market Place",
     image: "assets/homePage/market_place.jpg",
     description: "Market Place",
+    routeName: '/market-place',
   ),
   const Explore(
     name: "Crop Cultivation",
