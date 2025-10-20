@@ -8,6 +8,7 @@ class Product {
   final int stock;
   final String location;
   final bool isOrganic;
+  final String? organicCertificatePath;
   final String status;
   final DateTime? harvestDate;
   final DateTime? expiryDate;
@@ -24,6 +25,7 @@ class Product {
     required this.stock,
     required this.location,
     this.isOrganic = false,
+    this.organicCertificatePath,
     this.status = 'AVAILABLE',
     this.harvestDate,
     this.expiryDate,
@@ -41,6 +43,7 @@ class Product {
       'description': description,
       'location': location,
       'isOrganic': isOrganic,
+      if (organicCertificatePath != null) 'organicCertificatePath': organicCertificatePath, // ✅
       'status': status,
       if (harvestDate != null) 'harvestDate': _formatDate(harvestDate!),
       if (expiryDate != null) 'expiryDate': _formatDate(expiryDate!),
@@ -61,6 +64,7 @@ class Product {
     int? stock,
     String? location,
     bool? isOrganic,
+    String? organicCertificatePath, 
     String? status,
     DateTime? harvestDate,
     DateTime? expiryDate,
@@ -75,6 +79,7 @@ class Product {
       stock: stock ?? this.stock,
       location: location ?? this.location,
       isOrganic: isOrganic ?? this.isOrganic,
+      organicCertificatePath: organicCertificatePath ?? this.organicCertificatePath, // ✅
       status: status ?? this.status,
       harvestDate: harvestDate ?? this.harvestDate,
       expiryDate: expiryDate ?? this.expiryDate,

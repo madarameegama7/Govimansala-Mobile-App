@@ -33,5 +33,23 @@ static Future<bool> login(String email, String password) async {
     return false;
   }
 }
+Future<Map<String, dynamic>> updateProfile(
+      String token, Map<String, dynamic> updatedData) async {
+    final response = await http.put(
+      Uri.parse('$_baseUrl/update-profile'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      body: json.encode(updatedData),
+    );
+
+    if (response.statusCode == 200) {
+      return json.decode(response.body);
+    } else {
+      print("Error updating profile: ${response.statusCode} -> ${response.body}");
+      throw Exception('Failed to update profile');
+    }
+  }
 
 }
