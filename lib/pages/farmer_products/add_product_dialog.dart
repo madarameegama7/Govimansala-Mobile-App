@@ -1,7 +1,10 @@
 // lib/pages/my_products/add_product_dialog.dart
 import 'package:flutter/material.dart';
+import 'package:file_picker/file_picker.dart';
 import '../../models/farmer_product.dart';
 import '../../services/farmerproduct_service.dart';
+import 'package:flutter/foundation.dart';
+
 
 class AddProductDialog extends StatefulWidget {
   final Product? product;
@@ -31,6 +34,13 @@ class _AddProductDialogState extends State<AddProductDialog> {
   DateTime? _harvestDate;
   DateTime? _expiryDate;
 
+  String? _organicCertificatePath;
+
+  // For Web: store picked file name and bytes
+String? _organicCertificateFileName;
+Uint8List? _organicCertificateBytes;
+
+
   final List<String> _categories = ['Vegetables', 'Fruits', 'Grains', 'Dairy', 'Other'];
   final List<String> _statusOptions = ['AVAILABLE', 'OUT_OF_STOCK', 'DISCONTINUED'];
 
@@ -48,6 +58,7 @@ class _AddProductDialogState extends State<AddProductDialog> {
       _isOrganic = widget.product!.isOrganic;
       _harvestDate = widget.product!.harvestDate;
       _expiryDate = widget.product!.expiryDate;
+      _organicCertificatePath = widget.product!.organicCertificatePath;
     }
   }
 
@@ -64,15 +75,15 @@ class _AddProductDialogState extends State<AddProductDialog> {
   Future<void> _selectDate(BuildContext context, bool isHarvestDate) async {
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: isHarvestDate 
+      initialDate: isHarvestDate
           ? _harvestDate ?? DateTime.now()
           : _expiryDate ?? DateTime.now().add(const Duration(days: 30)),
-      firstDate: isHarvestDate 
+      firstDate: isHarvestDate
           ? DateTime.now().subtract(const Duration(days: 365))
           : DateTime.now(),
       lastDate: DateTime.now().add(const Duration(days: 365)),
     );
-    
+
     if (picked != null) {
       setState(() {
         if (isHarvestDate) {
@@ -84,28 +95,60 @@ class _AddProductDialogState extends State<AddProductDialog> {
     }
   }
 
-// In your AddProductDialog _submitForm method
-void _submitForm() {
-  if (_formKey.currentState!.validate()) {
-    final product = Product(
-      id: widget.product?.id,
-      name: _nameController.text.trim(),
-      price: double.parse(_priceController.text),
-      description: _descriptionController.text.trim(),
-      imageUrl: FarmerProductService.getProductImage(_nameController.text.trim()), // Use public method
-      category: _selectedCategory,
-      stock: int.parse(_stockController.text),
-      location: _locationController.text.trim(),
-      isOrganic: _isOrganic,
-      status: _selectedStatus,
-      harvestDate: _harvestDate,
-      expiryDate: _expiryDate,
+  Future<void> _pickOrganicCertificate() async {
+  if (kIsWeb) {
+    // Handle web file picking (FilePicker supports limited web)
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.any,
+      withData: true,
     );
 
-    widget.onSave(product);
-    Navigator.of(context).pop();
+    if (result != null && result.files.isNotEmpty) {
+      final fileBytes = result.files.first.bytes;
+      final fileName = result.files.first.name;
+
+      setState(() {
+        _organicCertificateFileName = fileName;
+        _organicCertificateBytes = fileBytes;
+      });
+    }
+  } else {
+    // Mobile/Desktop
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.any,
+    );
+
+    if (result != null && result.files.isNotEmpty) {
+      setState(() {
+        _organicCertificatePath = result.files.first.path;
+      });
+    }
   }
 }
+
+
+  void _submitForm() {
+    if (_formKey.currentState!.validate()) {
+      final product = Product(
+        id: widget.product?.id,
+        name: _nameController.text.trim(),
+        price: double.parse(_priceController.text),
+        description: _descriptionController.text.trim(),
+        imageUrl: FarmerProductService.getProductImage(_nameController.text.trim()),
+        category: _selectedCategory,
+        stock: int.parse(_stockController.text),
+        location: _locationController.text.trim(),
+        isOrganic: _isOrganic,
+        organicCertificatePath: _organicCertificatePath,
+        status: _selectedStatus,
+        harvestDate: _harvestDate,
+        expiryDate: _expiryDate,
+      );
+
+      widget.onSave(product);
+      Navigator.of(context).pop();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -123,12 +166,8 @@ void _submitForm() {
                   labelText: 'Product Name',
                   border: OutlineInputBorder(),
                 ),
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return 'Please enter product name';
-                  }
-                  return null;
-                },
+                validator: (value) =>
+                    value == null || value.trim().isEmpty ? 'Please enter product name' : null,
               ),
               const SizedBox(height: 16),
               DropdownButtonFormField<String>(
@@ -137,12 +176,12 @@ void _submitForm() {
                   labelText: 'Category',
                   border: OutlineInputBorder(),
                 ),
-                items: _categories.map((category) {
-                  return DropdownMenuItem(
-                    value: category,
-                    child: Text(category),
-                  );
-                }).toList(),
+                items: _categories
+                    .map((category) => DropdownMenuItem(
+                          value: category,
+                          child: Text(category),
+                        ))
+                    .toList(),
                 onChanged: (value) {
                   setState(() {
                     _selectedCategory = value!;
@@ -156,18 +195,14 @@ void _submitForm() {
                     child: TextFormField(
                       controller: _priceController,
                       decoration: const InputDecoration(
-                        labelText: 'Price (Rs.)',
+                        labelText: 'Price Per Kg(Rs.)',
                         border: OutlineInputBorder(),
                         prefixText: 'Rs. ',
                       ),
                       keyboardType: TextInputType.number,
                       validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter price';
-                        }
-                        if (double.tryParse(value) == null) {
-                          return 'Please enter valid price';
-                        }
+                        if (value == null || value.isEmpty) return 'Please enter price';
+                        if (double.tryParse(value) == null) return 'Please enter valid price';
                         return null;
                       },
                     ),
@@ -177,17 +212,13 @@ void _submitForm() {
                     child: TextFormField(
                       controller: _stockController,
                       decoration: const InputDecoration(
-                        labelText: 'Stock',
+                        labelText: 'Stock in kg',
                         border: OutlineInputBorder(),
                       ),
                       keyboardType: TextInputType.number,
                       validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter stock';
-                        }
-                        if (int.tryParse(value) == null) {
-                          return 'Please enter valid stock';
-                        }
+                        if (value == null || value.isEmpty) return 'Please enter stock';
+                        if (int.tryParse(value) == null) return 'Please enter valid stock';
                         return null;
                       },
                     ),
@@ -202,12 +233,8 @@ void _submitForm() {
                   border: OutlineInputBorder(),
                 ),
                 maxLines: 3,
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return 'Please enter description';
-                  }
-                  return null;
-                },
+                validator: (value) =>
+                    value == null || value.trim().isEmpty ? 'Please enter description' : null,
               ),
               const SizedBox(height: 16),
               TextFormField(
@@ -216,12 +243,8 @@ void _submitForm() {
                   labelText: 'Location',
                   border: OutlineInputBorder(),
                 ),
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return 'Please enter location';
-                  }
-                  return null;
-                },
+                validator: (value) =>
+                    value == null || value.trim().isEmpty ? 'Please enter location' : null,
               ),
               const SizedBox(height: 16),
               DropdownButtonFormField<String>(
@@ -230,12 +253,12 @@ void _submitForm() {
                   labelText: 'Status',
                   border: OutlineInputBorder(),
                 ),
-                items: _statusOptions.map((status) {
-                  return DropdownMenuItem(
-                    value: status,
-                    child: Text(status.replaceAll('_', ' ')),
-                  );
-                }).toList(),
+                items: _statusOptions
+                    .map((status) => DropdownMenuItem(
+                          value: status,
+                          child: Text(status.replaceAll('_', ' ')),
+                        ))
+                    .toList(),
                 onChanged: (value) {
                   setState(() {
                     _selectedStatus = value!;
@@ -249,9 +272,31 @@ void _submitForm() {
                 onChanged: (value) {
                   setState(() {
                     _isOrganic = value;
+                    if (!_isOrganic) _organicCertificatePath = null;
                   });
                 },
               ),
+              if (_isOrganic) ...[
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    ElevatedButton.icon(
+                      onPressed: _pickOrganicCertificate,
+                      icon: const Icon(Icons.upload_file),
+                      label: const Text('Upload Organic Certificate'),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        _organicCertificatePath != null
+                            ? _organicCertificatePath!.split('/').last
+                            : 'No file selected',
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
               const SizedBox(height: 16),
               Row(
                 children: [
@@ -266,11 +311,9 @@ void _submitForm() {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(
-                              _harvestDate != null
-                                  ? '${_harvestDate!.day}/${_harvestDate!.month}/${_harvestDate!.year}'
-                                  : 'Select Date',
-                            ),
+                            Text(_harvestDate != null
+                                ? '${_harvestDate!.day}/${_harvestDate!.month}/${_harvestDate!.year}'
+                                : 'Select Date'),
                             const Icon(Icons.calendar_today, size: 20),
                           ],
                         ),
@@ -289,11 +332,9 @@ void _submitForm() {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(
-                              _expiryDate != null
-                                  ? '${_expiryDate!.day}/${_expiryDate!.month}/${_expiryDate!.year}'
-                                  : 'Select Date',
-                            ),
+                            Text(_expiryDate != null
+                                ? '${_expiryDate!.day}/${_expiryDate!.month}/${_expiryDate!.year}'
+                                : 'Select Date'),
                             const Icon(Icons.calendar_today, size: 20),
                           ],
                         ),
@@ -313,7 +354,7 @@ void _submitForm() {
         ),
         ElevatedButton(
           onPressed: _submitForm,
-          child: Text(widget.product == null ? 'Add Product' : 'Update Product'),
+          child: const Text('Save'),
         ),
       ],
     );

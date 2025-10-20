@@ -48,7 +48,7 @@ class _MyProductsPageState extends State<MyProductsPage> {
     try {
       final success = await FarmerProductService.addFarmerProduct(product);
       if (success) {
-        await _loadMyProducts(); // Refresh list
+        await _loadMyProducts();
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -74,7 +74,7 @@ class _MyProductsPageState extends State<MyProductsPage> {
     try {
       final success = await FarmerProductService.updateFarmerProduct(product);
       if (success) {
-        await _loadMyProducts(); // Refresh list
+        await _loadMyProducts();
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -124,6 +124,33 @@ class _MyProductsPageState extends State<MyProductsPage> {
     }
   }
 
+  Widget productImage(Product product, {double size = 80}) {
+    final name = product.name.toLowerCase().replaceAll(" ", "_");
+    final exts = ['jpg', 'jpeg', 'png'];
+
+    Widget tryNext(int index) {
+      if (index >= exts.length) {
+        return Image.asset(
+          'assets/productImages/default_product.png',
+          width: size,
+          height: size,
+          fit: BoxFit.cover,
+        );
+      }
+
+      final path = 'assets/productImages/$name.${exts[index]}';
+      return Image.asset(
+        path,
+        width: size,
+        height: size,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) => tryNext(index + 1),
+      );
+    }
+
+    return tryNext(0);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -158,21 +185,11 @@ class _MyProductsPageState extends State<MyProductsPage> {
         children: [
           Icon(Icons.error_outline, size: 64, color: Colors.red[400]),
           const SizedBox(height: 16),
-          Text(
-            'Failed to load products',
-            style: Theme.of(context).textTheme.titleLarge,
-          ),
+          Text('Failed to load products', style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: 8),
-          Text(
-            errorMessage!,
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.bodyMedium,
-          ),
+          Text(errorMessage!, textAlign: TextAlign.center),
           const SizedBox(height: 16),
-          ElevatedButton(
-            onPressed: _loadMyProducts,
-            child: const Text('Try Again'),
-          ),
+          ElevatedButton(onPressed: _loadMyProducts, child: const Text('Try Again')),
         ],
       ),
     );
@@ -185,20 +202,11 @@ class _MyProductsPageState extends State<MyProductsPage> {
         children: [
           Icon(IconlyLight.bag, size: 64, color: Colors.grey[400]),
           const SizedBox(height: 16),
-          Text(
-            'No Products Yet',
-            style: Theme.of(context).textTheme.titleLarge,
-          ),
+          Text('No Products Yet', style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: 8),
-          Text(
-            'Add your first product to start selling',
-            style: Theme.of(context).textTheme.bodyMedium,
-          ),
+          Text('Add your first product to start selling'),
           const SizedBox(height: 16),
-          ElevatedButton(
-            onPressed: () => _showAddProductDialog(),
-            child: const Text('Add Product'),
-          ),
+          ElevatedButton(onPressed: () => _showAddProductDialog(), child: const Text('Add Product')),
         ],
       ),
     );
@@ -208,9 +216,7 @@ class _MyProductsPageState extends State<MyProductsPage> {
     return ListView.builder(
       padding: const EdgeInsets.all(16),
       itemCount: myProducts.length,
-      itemBuilder: (context, index) {
-        return _buildProductCard(myProducts[index]);
-      },
+      itemBuilder: (context, index) => _buildProductCard(myProducts[index]),
     );
   }
 
@@ -221,102 +227,44 @@ class _MyProductsPageState extends State<MyProductsPage> {
         padding: const EdgeInsets.all(16),
         child: Row(
           children: [
-            // Product Image
-            ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: Image.asset(
-                product.imageUrl,
-                width: 80,
-                height: 80,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  return Container(
-                    width: 80,
-                    height: 80,
-                    color: Colors.grey[200],
-                    child: Icon(Icons.image, color: Colors.grey[400]),
-                  );
-                },
-              ),
-            ),
+            ClipRRect(borderRadius: BorderRadius.circular(8), child: productImage(product)),
             const SizedBox(width: 16),
-
-            // Product Details
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    product.name,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
+                  Row(
+                    children: [
+                      Text(product.name,
+                          style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+                      const SizedBox(width: 6),
+                      if (product.isOrganic)
+                        const Icon(Icons.eco, color: Colors.green, size: 18),
+                    ],
                   ),
                   const SizedBox(height: 4),
-                  Text(
-                    product.description,
-                    style: Theme.of(context).textTheme.bodySmall,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
+                  Text(product.description, maxLines: 2, overflow: TextOverflow.ellipsis),
                   const SizedBox(height: 8),
                   Row(
                     children: [
-                      Text(
-                        'Rs. ${product.price.toStringAsFixed(0)}',
-                        style:
-                            Theme.of(context).textTheme.titleMedium?.copyWith(
-                                  color: Theme.of(context).primaryColor,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                      ),
+                      Text('Rs. ${product.price.toStringAsFixed(0)}',
+                          style: TextStyle(color: Theme.of(context).primaryColor, fontWeight: FontWeight.bold)),
                       const Spacer(),
                       Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 4),
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
                           color: _getStatusColor(product.status),
                           borderRadius: BorderRadius.circular(4),
                         ),
-                        child: Text(
-                          product.status,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
+                        child: Text(product.status, style: const TextStyle(color: Colors.white, fontSize: 12)),
                       ),
                     ],
                   ),
                   const SizedBox(height: 4),
-                  Text(
-                    'Stock: ${product.stock} • ${product.location}',
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Colors.grey[600],
-                        ),
-                  ),
-                  if (product.isOrganic) ...[
-                    const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        Icon(Icons.eco, size: 16, color: Colors.green),
-                        const SizedBox(width: 4),
-                        Text(
-                          'Organic',
-                          style:
-                              Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    color: Colors.green,
-                                  ),
-                        ),
-                      ],
-                    ),
-                  ],
+                  Text('Stock: ${product.stock} • ${product.location}', style: const TextStyle(color: Colors.grey)),
                 ],
               ),
             ),
-
-            // Menu Button
             PopupMenuButton<String>(
               onSelected: (value) {
                 switch (value) {
@@ -329,21 +277,13 @@ class _MyProductsPageState extends State<MyProductsPage> {
                 }
               },
               itemBuilder: (context) => [
+                const PopupMenuItem(value: 'edit', child: ListTile(leading: Icon(IconlyLight.edit), title: Text('Edit'))),
                 const PopupMenuItem(
-                  value: 'edit',
-                  child: ListTile(
-                    leading: Icon(IconlyLight.edit, size: 20),
-                    title: Text('Edit'),
-                  ),
-                ),
-                const PopupMenuItem(
-                  value: 'delete',
-                  child: ListTile(
-                    leading:
-                        Icon(IconlyLight.delete, size: 20, color: Colors.red),
-                    title: Text('Delete', style: TextStyle(color: Colors.red)),
-                  ),
-                ),
+                    value: 'delete',
+                    child: ListTile(
+                      leading: Icon(IconlyLight.delete, color: Colors.red),
+                      title: Text('Delete', style: TextStyle(color: Colors.red)),
+                    )),
               ],
             ),
           ],
@@ -366,22 +306,11 @@ class _MyProductsPageState extends State<MyProductsPage> {
   }
 
   void _showAddProductDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => AddProductDialog(
-        onSave: _addProduct,
-      ),
-    );
+    showDialog(context: context, builder: (context) => AddProductDialog(onSave: _addProduct));
   }
 
   void _showEditProductDialog(Product product) {
-    showDialog(
-      context: context,
-      builder: (context) => AddProductDialog(
-        product: product,
-        onSave: _updateProduct,
-      ),
-    );
+    showDialog(context: context, builder: (context) => AddProductDialog(product: product, onSave: _updateProduct));
   }
 
   void _showDeleteDialog(Product product) {
@@ -391,10 +320,7 @@ class _MyProductsPageState extends State<MyProductsPage> {
         title: const Text('Delete Product'),
         content: Text('Are you sure you want to delete "${product.name}"?'),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
-          ),
+          TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Cancel')),
           TextButton(
             onPressed: () {
               Navigator.of(context).pop();
