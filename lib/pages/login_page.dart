@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:govimansala/pages/home_page.dart';
 import 'package:govimansala/services/auth_service.dart';
-import 'dart:convert';
+// import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:govimansala/pages/register_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -111,18 +112,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
                 const SizedBox(height: 8),
 
-                // Forgot Password
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: TextButton(
-                    onPressed: () {},
-                    child: Text(
-                      'Forgot password?',
-                      style: TextStyle(color: Colors.grey[700]),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 8),
 
                 // Login Button
                 SizedBox(
@@ -165,44 +154,23 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 24),
 
-                // Or login with
-                Row(
-                  children: [
-                    Expanded(child: Divider()),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      child: Text('Or Login with'),
-                    ),
-                    Expanded(child: Divider()),
-                  ],
-                ),
-                const SizedBox(height: 16),
-
-                // Social Icons
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    _socialIcon('assets/facebook.png'),
-                    SizedBox(width: 16),
-                    _socialIcon('assets/google.png'),
-                    SizedBox(width: 16),
-                    _socialIcon('assets/apple.png'),
-                  ],
-                ),
-                const SizedBox(height: 24),
 
                 // Signup
-                Row(
+                     Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text("Don't have an account? "),
                     GestureDetector(
                       onTap: () {
-                        // Navigate to Sign Up screen
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => RegisterScreen()),
+                        );
                       },
                       child: Text(
                         "Sign up",
-                        style: TextStyle(color: Colors.green[700]),
+                        style: TextStyle(color: Colors.blue.shade600),
                       ),
                     )
                   ],

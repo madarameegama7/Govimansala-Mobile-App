@@ -1,98 +1,135 @@
 import 'package:flutter/material.dart';
+import '../info_center/models/gov_policy.dart';
+import '../info_center/data/gov_info.dart';
 
-class GovernmentPoliciesPage extends StatelessWidget {
-  const GovernmentPoliciesPage({Key? key}) : super(key: key);
+class GovernmentPoliciesPage extends StatefulWidget {
+  const GovernmentPoliciesPage({super.key});
 
-  static final List<_Policy> _policies = [
-    _Policy(
-      title: 'Subsidy for Smallholders',
-      summary: 'Financial support for seed, fertilizer and inputs for small farmers.',
-      date: '2024-01-15',
-      link: null,
-    ),
-    _Policy(
-      title: 'Land Use Regulation Update',
-      summary: 'Guidelines on land classification and permissible agricultural activities.',
-      date: '2023-11-02',
-      link: null,
-    ),
-    _Policy(
-      title: 'Irrigation Development Program',
-      summary: 'Funding and technical support for community irrigation projects.',
-      date: '2024-03-08',
-      link: null,
-    ),
-  ];
+  @override
+  State<GovernmentPoliciesPage> createState() => _GovernmentPoliciesPageState();
+}
+
+class _GovernmentPoliciesPageState extends State<GovernmentPoliciesPage> {
+  String selectedCategory = 'All';
+
+  List<String> get categories {
+    final allCategories =
+        policyList.map((policy) => policy.category).toSet().toList();
+    allCategories.sort();
+    return ['All', ...allCategories];
+  }
 
   @override
   Widget build(BuildContext context) {
+    final filteredPolicies = selectedCategory == 'All'
+        ? policyList
+        : policyList.where((p) => p.category == selectedCategory).toList();
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Government Policies'),
-        centerTitle: false,
+        title: const Text(
+          'Government Agriculture Policies',
+          style: TextStyle(fontWeight: FontWeight.w600),
+        ),
+        // backgroundColor: Colors.green.shade700,
       ),
-      body: SafeArea(
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16.0),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Search bar
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-              child: TextField(
-                decoration: InputDecoration(
-                  hintText: 'Search policies...',
-                  prefixIcon: const Icon(Icons.search),
-                  contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(99)),
-                ),
-                textInputAction: TextInputAction.search,
-                onSubmitted: (_) {
-                  // optional: implement search/filter
-                },
-              ),
+            // ─────────────── INTRO ───────────────
+            const Text(
+              'Learn about key agricultural programs that help Sri Lankan farmers. '
+              'These include subsidies, insurance, irrigation, and land-use policies to improve farming and livelihoods.',
+              style: TextStyle(fontSize: 16, height: 1.5),
             ),
+            const SizedBox(height: 20),
 
-            // Quick filters
+            // ─────────────── CATEGORY FILTER ───────────────
             SizedBox(
-              height: 46,
-              child: ListView(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                scrollDirection: Axis.horizontal,
-                children: [
-                  const SizedBox(width: 4),
-                  _FilterChip(label: 'All', selected: true),
-                  const SizedBox(width: 8),
-                  _FilterChip(label: 'Subsidies'),
-                  const SizedBox(width: 8),
-                  _FilterChip(label: 'Land'),
-                  const SizedBox(width: 8),
-                  _FilterChip(label: 'Irrigation'),
-                  const SizedBox(width: 8),
-                  _FilterChip(label: 'Insurance'),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 8),
-
-            // Policies list
-            Expanded(
+              height: 42,
               child: ListView.separated(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                itemCount: _policies.length,
-                separatorBuilder: (_, __) => const SizedBox(height: 12),
+                scrollDirection: Axis.horizontal,
+                itemCount: categories.length,
+                separatorBuilder: (_, __) => const SizedBox(width: 8),
                 itemBuilder: (context, index) {
-                  final p = _policies[index];
-                  return _PolicyCard(
-                    policy: p,
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => _PolicyDetailPage(policy: p)),
-                      );
+                  final cat = categories[index];
+                  final isSelected = selectedCategory == cat;
+                  return ChoiceChip(
+                    label: Text(cat),
+                    selected: isSelected,
+                    selectedColor: Colors.green.shade600,
+                    backgroundColor: Colors.grey.shade200,
+                    labelStyle: TextStyle(
+                      color: isSelected ? Colors.white : Colors.black,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    onSelected: (_) {
+                      setState(() => selectedCategory = cat);
                     },
                   );
                 },
               ),
+            ),
+
+            const SizedBox(height: 20),
+
+            // ─────────────── POLICY LIST ───────────────
+            ...filteredPolicies.map((policy) => _PolicyCard(policy: policy)),
+
+            const SizedBox(height: 30),
+
+            // ─────────────── HOW TO APPLY ───────────────
+            const Text(
+              'How to Apply',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 10),
+            const Text(
+              'Farmers interested in benefiting from these programs should visit their nearest Agrarian Service Center or Divisional Secretariat. '
+              'Applications are typically open during each cultivation season and require proof of land ownership or registration as a farmer. '
+              'Most schemes now also allow online registration through the Ministry of Agriculture’s e-agri portal.',
+              style: TextStyle(fontSize: 16, height: 1.5),
+            ),
+            const SizedBox(height: 10),
+            const Text(
+              'Key steps:\n'
+              '• Check eligibility for the specific scheme\n'
+              '• Collect required documents (NIC, land permit, bank account)\n'
+              '• Submit form at your local office or online portal\n'
+              '• Await confirmation and follow updates via SMS or notice board',
+              style: TextStyle(fontSize: 16, height: 1.5),
+            ),
+
+            const SizedBox(height: 30),
+
+            // ─────────────── FAQ ───────────────
+            const Text(
+              'Frequently Asked Questions',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 12),
+            _FaqItem(
+              question: 'Who can apply for agricultural subsidies?',
+              answer:
+                  'Registered farmers who cultivate eligible crops such as paddy, maize, or vegetables can apply. Youth and women farmers are given priority in most programs.',
+            ),
+            _FaqItem(
+              question: 'Is insurance mandatory for all farmers?',
+              answer:
+                  'No, but it is strongly recommended. The government covers part of the premium, making it affordable and helpful in times of crop loss.',
+            ),
+            _FaqItem(
+              question:
+                  'Do I need to own land to apply for irrigation support?',
+              answer:
+                  'You can apply if you are a registered cultivator with legal cultivation rights, even if you do not fully own the land.',
+            ),
+            _FaqItem(
+              question: 'Where can I get more information?',
+              answer:
+                  'You can contact your local Agrarian Service Center or the Department of Agriculture hotline for details on available programs in your district.',
             ),
           ],
         ),
@@ -101,121 +138,100 @@ class GovernmentPoliciesPage extends StatelessWidget {
   }
 }
 
-class _Policy {
-  final String title;
-  final String summary;
-  final String date;
-  final String? link; // optional external link to official doc
-  const _Policy({required this.title, required this.summary, required this.date, this.link});
+// ─────────────── POLICY CARD ───────────────
+class _PolicyCard extends StatefulWidget {
+  final Policy policy;
+  const _PolicyCard({required this.policy});
+
+  @override
+  State<_PolicyCard> createState() => _PolicyCardState();
 }
 
-class _FilterChip extends StatelessWidget {
-  final String label;
-  final bool selected;
-  const _FilterChip({Key? key, required this.label, this.selected = false}) : super(key: key);
+class _PolicyCardState extends State<_PolicyCard> {
+  bool expanded = false;
 
   @override
   Widget build(BuildContext context) {
-    return ActionChip(
-      label: Text(label),
-      onPressed: () {
-        // implement filter change
-      },
-      backgroundColor: selected ? Colors.green.shade700 : Colors.green.shade50,
-      labelStyle: TextStyle(color: selected ? Colors.white : Colors.green.shade800),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+    final policy = widget.policy;
+    return Card(
+      margin: const EdgeInsets.symmetric(vertical: 10),
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(14),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              policy.title,
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: Colors.green,
+              ),
+            ),
+            const SizedBox(height: 6),
+            Text(policy.summary, style: const TextStyle(fontSize: 15)),
+            const SizedBox(height: 8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  policy.category,
+                  style: const TextStyle(
+                      color: Colors.grey, fontStyle: FontStyle.italic),
+                ),
+                Text(
+                  policy.date,
+                  style: const TextStyle(color: Colors.grey),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            if (expanded)
+              Text(
+                policy.details,
+                style: const TextStyle(fontSize: 15, height: 1.4),
+              ),
+            TextButton(
+              onPressed: () => setState(() => expanded = !expanded),
+              child: Text(expanded ? 'Show Less' : 'Read More'),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
 
-class _PolicyCard extends StatelessWidget {
-  final _Policy policy;
-  final VoidCallback? onTap;
-  const _PolicyCard({Key? key, required this.policy, this.onTap}) : super(key: key);
+// ─────────────── FAQ ITEM ───────────────
+class _FaqItem extends StatelessWidget {
+  final String question;
+  final String answer;
+  const _FaqItem({required this.question, required this.answer});
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      elevation: 1,
-      borderRadius: BorderRadius.circular(12),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
-        child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: Row(
-            children: [
-              Container(
-                width: 54,
-                height: 54,
-                decoration: BoxDecoration(
-                  color: Colors.green.shade50,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Icon(Icons.policy, color: Colors.green, size: 28),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Text(policy.title, maxLines: 2, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.w700)),
-                  const SizedBox(height: 6),
-                  Text(policy.summary, maxLines: 2, overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.grey.shade700)),
-                  const SizedBox(height: 8),
-                  Row(children: [Icon(Icons.calendar_today, size: 14, color: Colors.grey.shade600), const SizedBox(width: 6), Text(policy.date, style: TextStyle(color: Colors.grey.shade600, fontSize: 12))]),
-                ]),
-              ),
-              const SizedBox(width: 8),
-              IconButton(
-                onPressed: () {
-                  // share or open link
-                },
-                icon: const Icon(Icons.open_in_new),
-                color: Colors.green,
-              )
-            ],
+    return ExpansionTile(
+      title: Text(
+        question,
+        style: const TextStyle(
+          fontWeight: FontWeight.w600,
+          fontSize: 16,
+        ),
+      ),
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Text(
+            answer,
+            style: const TextStyle(fontSize: 15, height: 1.5),
           ),
         ),
-      ),
+      ],
     );
   }
 }
 
-class _PolicyDetailPage extends StatelessWidget {
-  final _Policy policy;
-  const _PolicyDetailPage({Key? key, required this.policy}) : super(key: key);
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text(policy.title)),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(policy.title, style: Theme.of(context).textTheme.headlineSmall),
-            const SizedBox(height: 8),
-            Text('Published: ${policy.date}', style: TextStyle(color: Colors.grey.shade600)),
-            const SizedBox(height: 12),
-            Text(policy.summary, style: const TextStyle(height: 1.5)),
-            const SizedBox(height: 16),
-            const Text('Details', style: TextStyle(fontWeight: FontWeight.w700)),
-            const SizedBox(height: 8),
-            const Text(
-              'Full policy text, eligibility, application process, contact points and downloadable documents should be placed here. Replace with actual content or fetch from an API.',
-              style: TextStyle(height: 1.5),
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton.icon(
-              onPressed: () {
-                // open official link or share
-              },
-              icon: const Icon(Icons.link),
-              label: const Text('Open official document'),
-              style: ElevatedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-            ),
-          ]),
-        ),
-      ),
-    );
-  }
-}
+

@@ -117,7 +117,7 @@ class ProductListPage extends StatelessWidget {
                               width: double.infinity,
                               child: ElevatedButton.icon(
                                 icon: const Icon(Icons.add_shopping_cart),
-                                label: const Text("Add to Cart"),
+                                label: const Text("View"),
                                 style: ElevatedButton.styleFrom(
                                   padding: const EdgeInsets.symmetric(
                                       vertical: 10),

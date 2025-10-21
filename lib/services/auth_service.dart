@@ -51,5 +51,35 @@ Future<Map<String, dynamic>> updateProfile(
       throw Exception('Failed to update profile');
     }
   }
+  static Future<bool> register({
+    required String name,
+    required String email,
+    required String password,
+    required String phone,
+    required String address,
+  }) async {
+    final response = await http.post(
+      Uri.parse('$_baseUrl/register'),
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Client-Source': 'mobile',
+      },
+      body: jsonEncode({
+        'name': name,
+        'email': email,
+        'password': password,
+        'phone': phone,
+        'address': address,
+      }),
+    );
+
+    if (response.statusCode == 201 || response.statusCode == 200) {
+      print('Registration successful');
+      return true;
+    } else {
+      print('Registration failed: ${response.body}');
+      return false;
+    }
+  }
 
 }
