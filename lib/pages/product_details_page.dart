@@ -197,7 +197,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
           FilledButton.icon(
               onPressed: () {},
               icon: const Icon(IconlyLight.bag2),
-              label: const Text("Add to cart"))
+              label: const Text("View"))
         ],
       ),
     );
