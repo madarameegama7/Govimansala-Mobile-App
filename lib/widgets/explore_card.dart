@@ -39,7 +39,29 @@ class ExploreCard extends StatelessWidget {
                 explore.name,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: Theme.of(context).textTheme.titleSmall,
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: Theme.of(context).colorScheme.primary,
+                      fontSize: 16,
+                      shadows: [
+                        Shadow(
+                          offset: const Offset(0, 1.2),
+                          blurRadius: 3,
+                          color: Theme.of(context)
+                              .colorScheme
+                              .primary
+                              .withValues(alpha:0.4),
+                        ),
+                        // Shadow(
+                        //   offset: const Offset(0, 0),
+                        //   blurRadius: 6,
+                        //   color: Theme.of(context)
+                        //       .colorScheme
+                        //       .primary
+                        //       .withValues(alpha:0.25),
+                        // ),
+                      ],
+                    ),
               ),
               const SizedBox(height: 4),
               Text(
@@ -55,45 +77,3 @@ class ExploreCard extends StatelessWidget {
     );
   }
 }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return GestureDetector(
-//       onTap: () {
-//         Navigator.of(context).push(
-//           MaterialPageRoute(
-//               builder: (_) => ExploreDetailsPage(explore: explore)),
-//         );
-//       },
-//       child: Card(
-//         clipBehavior: Clip.antiAlias,
-//         shape: RoundedRectangleBorder(
-//           borderRadius: BorderRadius.circular(10),
-//           side: BorderSide(color: Colors.grey.shade200),
-//         ),
-//         elevation: 0.5,
-//         child: Column(
-//           mainAxisSize: MainAxisSize.min, // prevents card from stretching
-//           crossAxisAlignment: CrossAxisAlignment.start,
-//           children: [
-//             AspectRatio(
-//               aspectRatio: 3 / 2, // Controls image height relative to width
-//               child: Image.asset(
-//                 explore.image,
-//                 fit: BoxFit.cover,
-//                 width: double.infinity,
-//               ),
-//             ),
-//             Padding(
-//               padding: const EdgeInsets.all(8),
-//               child: Text(
-//                 explore.name,
-//                 style: Theme.of(context).textTheme.bodyLarge,
-//               ),
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }

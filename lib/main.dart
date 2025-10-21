@@ -8,10 +8,6 @@ import 'package:govimansala/pages/info_center/crop_cultivation.dart';
 import 'package:govimansala/pages/info_center/government_policies.dart';
 import 'package:govimansala/pages/info_center/bank_loans.dart';
 import 'package:govimansala/pages/info_center/agri_essentials.dart';
-import 'package:govimansala/pages/onboarding_page.dart';
-import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:govimansala/pages/login_page.dart';
 import 'package:govimansala/pages/order.dart';
 
 void main() {
@@ -47,17 +43,3 @@ class MainApp extends StatelessWidget {
     );
   }
 }
-
-// @override
-//   Widget build(BuildContext context) {
-//     return MaterialApp(
-//       title: 'Govimansala',
-//       debugShowCheckedModeBanner: false,
-//       theme: ThemeData(
-//         primarySwatch: Colors.green,
-//         textTheme: GoogleFonts.poppinsTextTheme(),
-//       ),
-//       home: LoginScreen(),
-//     );
-//   }
-// }
